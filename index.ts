@@ -22,9 +22,7 @@ app.set('trust proxy', 1);
 
 app.use(
   cors({
-    origin: [
-      'https://polygot-react.vercel.app'
-    ],
+    origin: 'https://polygot-react.vercel.app',
     credentials: true, // Allow cookies to be sent
   })
 );
@@ -55,7 +53,7 @@ app.use(
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
     },
   })
