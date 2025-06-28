@@ -22,7 +22,9 @@ app.set('trust proxy', 1);
 
 app.use(
   cors({
-    origin: 'https://polygot-react.vercel.app',
+     origin: (origin, callback) => {
+      callback(null, origin); // Allow all origins
+    },
     credentials: true, // Allow cookies to be sent
   })
 );
