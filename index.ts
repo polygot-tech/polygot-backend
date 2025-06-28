@@ -16,9 +16,14 @@ dotenv.config();
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
 
+app.set('trust proxy', 1);
+
 app.use(
   cors({
-    origin: 'https://polygot-react.vercel.app',
+    origin: [
+      'https://polygot-react.vercel.app',
+      'http://localhost:5173'
+    ],
     credentials: true, // Allow cookies to be sent
   })
 );
@@ -35,6 +40,7 @@ app.use(
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     },
   })
 );

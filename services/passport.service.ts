@@ -50,7 +50,7 @@ passport.deserializeUser(async (id: number, done) => {
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 const serverRootUri = process.env.SERVER_ROOT_URI;
-
+console.log(serverRootUri,"SERVER_ROOT_URI")
 if (!googleClientId || !googleClientSecret || !serverRootUri) {
     throw new Error("Missing Google OAuth or Server URI environment variables. Please check your .env file.");
 }
