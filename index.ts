@@ -21,8 +21,7 @@ app.set('trust proxy', 1);
 app.use(
   cors({
     origin: [
-      'https://polygot-react.vercel.app',
-      'http://localhost:5173'
+      'https://polygot-react.vercel.app'
     ],
     credentials: true, // Allow cookies to be sent
   })
@@ -59,7 +58,7 @@ app.use('/api/v1/translate', translateRoutes);
 app.use('/api/v1/keys', keysRoutes);
 app.use('/api/v1/user',userRoutes)
 
-
+console.log('COOKIE_SECRET is:', process.env.COOKIE_SECRET);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
