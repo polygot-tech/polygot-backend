@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import passport from 'passport';
 import session from 'express-session';
+import pgSession from 'connect-pg-simple';
 import cookieParser from 'cookie-parser';
 
 import authRoutes from './routes/auth.routes';
@@ -10,6 +11,7 @@ import translateRoutes from './routes/translate.routes'
 import keysRoutes from './routes/keys.routes'
 import userRoutes from './routes/user.routes'
 import './services/passport.service'; // Passport configuration
+import { Pool } from 'pg';
 
 dotenv.config();
 
@@ -31,15 +33,30 @@ app.use(cookieParser());
 
 app.use(express.json());
 
+const pgPool = new Pool({
+  connectionString: process.env.DB_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
+
+const PgSession = pgSession(session);
+
+
 app.use(
   session({
-    secret: process.env.COOKIE_SECRET || 'default_secret',
+    store: new PgSession({
+      pool: pgPool,              // 🔁 Use your existing DB
+      tableName: 'user_sessions' // or anything you like
+    }),
+    secret: process.env.COOKIE_SECRET!,
     resave: false,
     saveUninitialized: false,
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
     },
   })
 );
