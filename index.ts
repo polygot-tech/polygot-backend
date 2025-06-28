@@ -22,7 +22,7 @@ const PORT = process.env.PORT || 3000;
 // Enable CORS for the frontend application
 app.use(
   cors({
-    origin: process.env.UI_ROOT_URI || 'http://localhost:5173',
+    origin: '*',
     credentials: true, // Allow cookies to be sent
   })
 );
