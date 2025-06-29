@@ -4,7 +4,10 @@ import { pool } from "../config/pool.config"
 
 export const checkApiKeyExists = async (req:Request, res:Response) => {
   try {
+
     const {email} = req.body
+
+    console.log(req.headers)
     if (!email) {res.status(401).json({ message: 'Unauthorized' })
         return
     }

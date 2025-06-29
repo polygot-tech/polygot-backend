@@ -1,5 +1,6 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy, type Profile } from 'passport-google-oauth20';
+import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import { pool } from '../config/pool.config';
 
 interface User {
@@ -9,40 +10,49 @@ interface User {
     profile_image: string;
 }
 
-passport.serializeUser((user: any, done) => {
-    done(null, user.id);
-});
-
-passport.deserializeUser(async (id: number, done) => {
-    try {
-        const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
-        if (result.rows.length > 0) {
-            done(null, result.rows[0]);
-        } else {
-            done(new Error('User not found'), null);
-        }
-    } catch (err) {
-        done(err, null);
-    }
-});
-
-
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+    throw new Error("Missing JWT_SECRET environment variable. Please check your .env file.");
+}
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 const serverRootUri = process.env.SERVER_ROOT_URI;
-console.log(serverRootUri,"SERVER_ROOT_URI")
+
 if (!googleClientId || !googleClientSecret || !serverRootUri) {
     throw new Error("Missing Google OAuth or Server URI environment variables. Please check your .env file.");
 }
 
+// JWT Strategy for protecting routes
+passport.use(
+    new JwtStrategy(
+        {
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            secretOrKey: jwtSecret,
+        },
+        async (jwtPayload, done) => {
+            try {
+                const result = await pool.query('SELECT * FROM users WHERE id = $1', [jwtPayload.id]);
+                if (result.rows.length > 0) {
+                    return done(null, result.rows[0]);
+                } else {
+                    return done(null, false); // Or create a new user account
+                }
+            } catch (err) {
+                return done(err, false);
+            }
+        }
+    )
+);
+
+// Google OAuth Strategy for initial login/registration
 passport.use(
     new GoogleStrategy(
         {
             clientID: googleClientId,
             clientSecret: googleClientSecret,
             callbackURL: `${serverRootUri}/api/v1/auth/google/callback`,
-            scope: ['profile', 'email'],
+            // scope remains the same
         },
         async (accessToken: string, refreshToken: string, profile: Profile, done) => {
             const userEmail = (profile.emails as any)?.[0].value;
@@ -51,16 +61,15 @@ passport.use(
             }
 
             try {
-                // Check if the user already exists in our database
+                // Check if the user already exists (this logic remains the same)
                 const existingUserResult = await pool.query('SELECT * FROM users WHERE email = $1', [userEmail]);
 
                 if (existingUserResult.rows.length > 0) {
-                    // User exists, pass the existing user to the next step
                     const existingUser: User = existingUserResult.rows[0];
                     console.log('Existing user found:', existingUser);
                     return done(null, existingUser);
                 } else {
-                    // User doesn't exist, create a new user in our database
+                    // Create a new user (this logic remains the same)
                     const userName = profile.displayName;
                     const userProfileImage = (profile.photos as any)?.[0].value;
 

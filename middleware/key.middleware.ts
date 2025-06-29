@@ -3,7 +3,7 @@ import { pool } from '../config/pool.config';
 
 export const apiKeyCheck = async(req: Request, res: Response, next: NextFunction) => {
      const authHeader = req.headers.authorization;
-
+    
     if (authHeader && authHeader.startsWith("Bearer ")) {
         const token = authHeader.split(" ")[1];
         const rows = await pool.query("SELECT * FROM api_keys WHERE api_key=$1",[token])

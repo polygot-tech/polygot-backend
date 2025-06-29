@@ -12,12 +12,12 @@ router.get(
 router.get(
     '/google/callback',
     passport.authenticate('google', {
-        failureRedirect: '/login/failed', 
-        session: true,
+        failureRedirect: '/login/failed',
+        session: false,
     }),
     googleCallback
 );
-
+    
 router.get('/logout', logout);
 
 export default router;
