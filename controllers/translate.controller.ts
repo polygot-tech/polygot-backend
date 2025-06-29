@@ -81,6 +81,6 @@ export const translate = async (req: Request, res: Response) => {
     }
   } catch (e) {
     console.log(e);
-    return res.status(500).json({ error: "An internal server error." });
+    return res.status(500).json({ error: "An internal server error.", message:(e as any).message });
   }
 };
