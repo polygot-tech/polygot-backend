@@ -7,10 +7,10 @@ import pgSession from 'connect-pg-simple';
 import cookieParser from 'cookie-parser';
 
 import authRoutes from './routes/auth.routes';
-import translateRoutes from './routes/translate.routes'
-import keysRoutes from './routes/keys.routes'
-import userRoutes from './routes/user.routes'
-import './services/passport.service'; // Passport configuration
+import translateRoutes from './routes/translate.routes';
+import keysRoutes from './routes/keys.routes';
+import userRoutes from './routes/user.routes';
+import './services/passport.service';
 import { Pool } from 'pg';
 import { connectRedis } from './config/redis.config';
 
@@ -18,22 +18,14 @@ dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
-
 app.set('trust proxy', 1);
 
-app.use(
-  cors({
-     origin: (origin, callback) => {
-      callback(null, origin); // Allow all origins
-    },
-    credentials: true, // Allow cookies to be sent
-  })
-);
+const allowedOrigins = [
+  'https://polygot-react.vercel.app',
+];
 
 app.use(cookieParser());
-
 app.use(express.json());
-
 connectRedis();
 
 const pgPool = new Pool({
@@ -45,12 +37,11 @@ const pgPool = new Pool({
 
 const PgSession = pgSession(session);
 
-
 app.use(
   session({
     store: new PgSession({
-      pool: pgPool,              // 🔁 Use your existing DB
-      tableName: 'user_sessions' // or anything you like
+      pool: pgPool,
+      tableName: 'user_sessions',
     }),
     secret: process.env.COOKIE_SECRET!,
     resave: false,
@@ -59,7 +50,7 @@ app.use(
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
       sameSite: 'none',
-      maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+      maxAge: 1000 * 60 * 60 * 24 * 7,
     },
   })
 );
@@ -67,20 +58,36 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(
+  '/api/v1/translate',
+  cors({
+    origin: '*',
+    credentials: false,
+  }),
+  translateRoutes
+);
 
-
-app.get('/', (req: Request, res: Response) => {
-    res.send('Server is running and ready to authenticate!');
+const authCors = cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, origin);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
 });
 
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/translate', translateRoutes);
-app.use('/api/v1/keys', keysRoutes);
-app.use('/api/v1/user',userRoutes)
+app.use('/api/v1/auth', authCors, authRoutes);
+app.use('/api/v1/user', authCors, userRoutes);
+app.use('/api/v1/keys', authCors, keysRoutes);
+
+app.get('/', (req: Request, res: Response) => {
+  res.send('Server is running and ready to authenticate!');
+});
 
 console.log('COOKIE_SECRET is:', process.env.COOKIE_SECRET);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
-  console.log('Auth routes are available at /api/v1/auth');
 });

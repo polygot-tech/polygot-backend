@@ -9,7 +9,6 @@ interface User {
     profile_image: string;
 }
 
-
 passport.serializeUser((user: any, done) => {
     done(null, user.id);
 });
