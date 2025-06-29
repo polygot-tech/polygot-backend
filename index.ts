@@ -12,6 +12,7 @@ import keysRoutes from './routes/keys.routes'
 import userRoutes from './routes/user.routes'
 import './services/passport.service'; // Passport configuration
 import { Pool } from 'pg';
+import { connectRedis } from './config/redis.config';
 
 dotenv.config();
 
@@ -32,6 +33,8 @@ app.use(
 app.use(cookieParser());
 
 app.use(express.json());
+
+connectRedis();
 
 const pgPool = new Pool({
   connectionString: process.env.DB_URL,

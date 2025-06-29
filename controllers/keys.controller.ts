@@ -1,6 +1,6 @@
 import type { Request, Response } from "express"
-import { pool } from "../services/passport.service"
 import { generateApiKey } from "../utils/generators"
+import { pool } from "../config/pool.config"
 
 export const checkApiKeyExists = async (req:Request, res:Response) => {
   try {

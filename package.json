@@ -15,7 +15,8 @@
     "express-validator": "^7.2.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "pg": "^8.16.2"
+    "pg": "^8.16.2",
+    "redis": "^5.5.6"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.7",

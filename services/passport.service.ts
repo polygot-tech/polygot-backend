@@ -1,18 +1,7 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy, type Profile } from 'passport-google-oauth20';
-import { Pool } from 'pg';
-import dotenv from 'dotenv';
+import { pool } from '../config/pool.config';
 
-dotenv.config();
-
-// --- Database Connection ---
-// Creates a connection pool to the PostgreSQL database.
-// Configuration is pulled from environment variables.
-export const pool = new Pool({
-    connectionString:process.env.DB_URL
-});
-
-// Define our User type based on the database table
 interface User {
     id: number;
     email: string;
@@ -21,16 +10,10 @@ interface User {
 }
 
 
-// --- Passport Configuration ---
-
-// `serializeUser` determines which data of the user object should be stored in the session.
-// We store the user's database ID for efficiency.
 passport.serializeUser((user: any, done) => {
     done(null, user.id);
 });
 
-// `deserializeUser` is used to retrieve the full user object from the database
-// using the ID stored in the session.
 passport.deserializeUser(async (id: number, done) => {
     try {
         const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
@@ -45,7 +28,6 @@ passport.deserializeUser(async (id: number, done) => {
 });
 
 
-// --- Google OAuth2 Strategy ---
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
