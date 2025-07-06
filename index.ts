@@ -19,6 +19,8 @@ app.set('trust proxy', 1);
 
 const allowedOrigins = [
   'https://polygot-react.vercel.app',
+  'https://polygot.tech',
+  'https://www.polygot.tech',
   'http://localhost:5173'
 ];
 
