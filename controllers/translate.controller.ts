@@ -3,7 +3,6 @@ import { prompt } from "../utils/prompt";
 import { createHash } from "crypto";
 import { redisClient } from "../config/redis.config";
 
-
 export const translate = async (req: Request, res: Response) => {
   try {
     const { to, from, input } = req.body;
@@ -81,6 +80,11 @@ export const translate = async (req: Request, res: Response) => {
     }
   } catch (e) {
     console.log(e);
-    return res.status(500).json({ error: "An internal server error.", message:(e as any).message });
+    return res
+      .status(500)
+      .json({
+        error: "An internal server error.",
+        message: (e as any).message,
+      });
   }
 };

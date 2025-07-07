@@ -79,7 +79,7 @@ export const getApiKeyByCredentials = async (req:Request, res:Response) => {
       return res.status(401).json({ message: 'Invalid credentials' })
     }
 
-    return res.json({ api_key: result.rows[0].api_key })
+    return res.json({ api_key: result.rows[0].api_key });
   } catch (err) {
     console.error(err)
     res.status(500).json({ message: 'Server error' })
