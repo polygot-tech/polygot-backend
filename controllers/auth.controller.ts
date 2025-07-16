@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 
 export const googleCallback = (req: Request, res: Response) => {
   const uiRootUri = process.env.UI_ROOT_URI;
+  console.log(uiRootUri);
   const jwtSecret = process.env.JWT_SECRET!;
 
   const user = req.user as { id: number; email: string };

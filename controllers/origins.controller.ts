@@ -3,13 +3,21 @@ import ApiResponse from "../utils/apiResponse";
 import type { Request, Response } from "express";
 import { prettifyError } from "zod/v4";
 import { pool } from "../config/pool.config";
+import { id } from "zod/v4/locales";
 const addOriginSchema = z.object({
   origins: z.string().trim(),
 });
 export const configureAppOrigin = async (req: Request, res: Response) => {
-  const { app_id } = req.params;
+  const { app_id } = req.query;
+  if (!app_id) {
+    ApiResponse.error(res, 400, "missing app_id in params.");
+  }
+
   const parsed = addOriginSchema.safeParse(req.body);
-  const { client_id } = req.user as { client_id: string };
+  const { client_id } = req.user as { client_id?: string };
+  if (!client_id) {
+    ApiResponse.error(res, 401, "Unauthorized.");
+  }
   if (!parsed.success) {
     return ApiResponse.error(res, 400, prettifyError(parsed.error));
   }
@@ -60,16 +68,17 @@ const getAppOriginSchema = z.object({
   app_id: z.string().trim(),
 });
 export const getAppOrigins = async (req: Request, res: Response) => {
-  const parsed = getAppOriginSchema.safeParse(req.params);
+  const parsed = getAppOriginSchema.safeParse(req.query);
   if (!parsed.success) {
     return ApiResponse.error(res, 400, prettifyError(parsed.error));
   }
   const { app_id } = parsed.data;
+  const { client_id } = req.user as { client_id: string };
 
   try {
     const result = await pool.query(
-      "SELECT * FROM origin_app_users_view where app_id = $1",
-      [app_id]
+      "SELECT * FROM origin_app_users_view where app_id = $1 and client_id = $2",
+      [app_id, client_id]
     );
     return ApiResponse(res, 200, "Allowed Apps origin.", result.rows);
   } catch (err) {

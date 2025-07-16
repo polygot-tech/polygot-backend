@@ -6,7 +6,7 @@ import {
 
 const router = Router();
 
-router.post("/:app_id", configureAppOrigin);
-router.get("/:app_id", getAppOrigins);
+router.post("/", configureAppOrigin);
+router.get("/", getAppOrigins);
 
 export default router;

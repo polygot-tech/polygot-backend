@@ -1,6 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
 import { pool } from "../config/pool.config";
-import type { User } from "../services/passport.service";
 import ApiResponse from "../utils/apiResponse";
 
 export const originCheck = async (
@@ -27,7 +26,18 @@ export const originCheck = async (
   );
   if (result.rows.length >= 1) {
     req.monitor = result.rows[0];
-    return next();
+    if (req.monitor?.is_active) {
+      if (req.monitor?.production && origin.includes("localhost")) {
+        return ApiResponse.error(
+          res,
+          401,
+          "Your app is in production mode. Hence it cannot be accessed from localhost."
+        );
+      }
+      return next();
+    } else {
+      return ApiResponse.error(res, 400, "Your app is not active.");
+    }
   }
   return ApiResponse.error(
     res,
