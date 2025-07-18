@@ -5,7 +5,6 @@ import passport from 'passport';
 
 import authRoutes from './routes/auth.routes';
 import translateRoutes from './routes/translate.routes';
-import keysRoutes from './routes/keys.routes';
 import userRoutes from './routes/user.routes';
 import './services/passport.service';
 import { connectRedis } from './config/redis.config';
@@ -54,7 +53,6 @@ const authCors = cors({
 app.use('/api/v1/auth', authCors, authRoutes);
 
 app.use('/api/v1/user', authCors, authenticateJWT, userRoutes);
-app.use('/api/v1/keys', authCors, authenticateJWT, keysRoutes);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Server is running and ready to authenticate with JWT!');
