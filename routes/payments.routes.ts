@@ -1,14 +1,18 @@
 import { Router } from 'express';
 import { translate } from '../controllers/translate.controller';
-import { apiKeyCheck } from '../middleware/key.middleware';
+import { createPaymentLink, paymentsWebhook } from '../controllers/payments.controller';
 
 const router = Router();
 
 router.post(
-    '/create-payment-link',
-    apiKeyCheck,
-    translate
+    '/',
+    createPaymentLink
 );
+
+router.post(
+    '/webhook',
+    paymentsWebhook
+)
 
 
 export default router;

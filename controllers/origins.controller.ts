@@ -3,7 +3,7 @@ import ApiResponse from "../utils/apiResponse";
 import type { Request, Response } from "express";
 import { prettifyError } from "zod/v4";
 import { pool } from "../config/pool.config";
-import { id } from "zod/v4/locales";
+
 const addOriginSchema = z.object({
   origins: z.string().trim(),
 });
@@ -55,8 +55,8 @@ export const configureAppOrigin = async (req: Request, res: Response) => {
     for (const origin of toDelete) {
       await pool.query("DELETE from origins where origin = $1", [origin]);
     }
-    return await ApiResponse(res, 200, "Origins configured successfully.");
-  } catch (err) {
+    return ApiResponse(res, 200, "Origins configured successfully.");
+  } catch (err:any) {
     console.log(err);
     let message = "Failed to configure origins.";
     if ((err.code = 23505)) message = "Origin already added for the app.";
