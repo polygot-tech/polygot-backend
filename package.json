@@ -10,6 +10,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/passport-jwt": "^4.0.1",
     "@types/pg": "^8.15.4",
+    "@types/socket.io": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
@@ -20,6 +21,7 @@
     "passport-jwt": "^4.0.1",
     "pg": "^8.16.2",
     "redis": "^5.5.6",
+    "socket.io": "^4.8.1",
     "standardwebhooks": "^1.0.0",
     "zod": "^4.0.5"
   },

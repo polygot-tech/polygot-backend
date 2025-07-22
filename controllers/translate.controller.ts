@@ -65,7 +65,7 @@ interface TranslationResult {
   detectedLanguage?: string; // Added for auto-detection
 }
 
-class TranslationService {
+export class TranslationService {
   private llm: ChatGroq;
   private detectPrompt: PromptTemplate;
   private translatePrompt: PromptTemplate;
@@ -108,14 +108,6 @@ class TranslationService {
   'Urdu': ['PK', 'IN'],
   'Gujarati': ['IN'],
   'Punjabi': ['IN', 'PK'],
-  'Tamil': ['IN', 'LK', 'SG', 'MY'],
-  'Telugu': ['IN'],
-  'Marathi': ['IN'],
-  'Kannada': ['IN'],
-  'Malayalam': ['IN'],
-  'Odia': ['IN'],
-  'Assamese': ['IN'],
-  'Sanskrit': ['IN'],
 
   // African Languages
   'Swahili': ['TZ', 'KE', 'UG', 'RW', 'BI', 'CD', 'MZ', 'MW', 'ZM', 'KM'],
@@ -487,7 +479,7 @@ class TranslationService {
 
   constructor() {
     this.llm = new ChatGroq({
-      model: "llama3-8b-8192",
+      model: "moonshotai/kimi-k2-instruct",
       temperature: 0.2,
       maxTokens: 2048,
       topP: 1,
@@ -866,45 +858,3 @@ export const translate = async (req: Request, res: Response) => {
   }
 };
 
-// Enhanced health check endpoint
-export const translateHealth = async (req: Request, res: Response) => {
-  try {
-    // Test Redis connection
-    await redisClient.ping();
-    
-    // Test LLM with auto-detection
-    const testResult = await translationService.translate({
-      to: "English",
-      input: "Bonjour", // No 'from' parameter for auto-detection test
-      tone: "casual"
-    });
-
-    return res.status(200).json({
-      status: "healthy",
-      services: {
-        redis: "connected",
-        llm: "operational"
-      },
-      features: {
-        autoLanguageDetection: true,
-        toneSupport: true,
-        regionSupport: true,
-        contextSupport: true,
-        slangAdaptation: true,
-        outputFormatValidation: true,
-        retryMechanism: true
-      },
-      testResult: {
-        detectedLanguage: testResult.detectedLanguage,
-        translation: testResult.translated
-      },
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    return res.status(503).json({
-      status: "unhealthy",
-      error: error instanceof Error ? error.message : "Unknown error",
-      timestamp: new Date().toISOString()
-    });
-  }
-};

@@ -4,6 +4,6 @@ import { originCheck } from "../middleware/originCheck.middleware";
 
 const router = Router();
 
-router.post("/", translate);
+router.post("/",originCheck, translate);
 
 export default router;
