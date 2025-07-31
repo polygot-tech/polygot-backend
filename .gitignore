@@ -16,11 +16,19 @@ _.log
 report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # dotenv environment variable files
+<<<<<<< HEAD
 # .env
 # .env.development.local
 # .env.test.local
 # .env.production.local
 # .env.local
+=======
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+>>>>>>> f1f15823eb345f04f7971ab358359f1572c1c18f
 
 # caches
 .eslintcache
