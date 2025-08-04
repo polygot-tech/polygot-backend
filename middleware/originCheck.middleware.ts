@@ -8,8 +8,8 @@ export const originCheck = async (
   next: NextFunction
 ) => {
   const app_id = req.headers["app-id"];
-  console.log(app_id);
   const origin = req.headers.origin;
+  const originalStatus = res.status;
   if (!app_id) {
     return ApiResponse(res, 400, "app_id is missing.");
   }
@@ -34,7 +34,9 @@ export const originCheck = async (
           "Your app is in production mode. Hence it cannot be accessed from localhost."
         );
       }
-      return next();
+      next();
+      console.log(req, "Request");
+      console.log(res, "Response");
     } else {
       return ApiResponse.error(res, 400, "Your app is not active.");
     }

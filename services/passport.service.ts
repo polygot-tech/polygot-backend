@@ -5,6 +5,8 @@ import {
 } from "passport-google-oauth20";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { pool } from "../config/pool.config";
+import { PAYMENT_QUERY } from "../controllers/modules/payment";
+import { plansConfig } from "../controllers/payments.controller";
 
 export interface User {
   id: number;
@@ -12,6 +14,16 @@ export interface User {
   name: string;
   client_id: string;
   profile_image: string;
+  subscription?: Subscription;
+}
+export interface Subscription {
+  id: string;
+  plan_id: string;
+  status: string;
+  current_period_end: string;
+  translation_usage: number;
+  remaining_usage: number;
+  created_at: string;
 }
 
 const jwtSecret = process.env.JWT_SECRET;
@@ -40,11 +52,30 @@ passport.use(
     },
     async (jwtPayload, done) => {
       try {
+        console.log("jwt check", jwtPayload);
         const result = await pool.query("SELECT * FROM users WHERE id = $1", [
           jwtPayload.id,
         ]);
+        const user: User = result.rows[0];
+        const subscription = await pool.query(
+          "SELECT * FROM subscriptions WHERE client_id = $1 AND status = $2 ORDER BY current_period_end ",
+          [user.client_id, "active"]
+        );
+        if (subscription.rows.length > 0) {
+          user.subscription = subscription.rows[0];
+          if (user.subscription) {
+            const plan = await pool.query(
+              "SELECT * FROM plans WHERE id = $1 ",
+              [user.subscription.plan_id]
+            );
+            const remaining_usage =
+              plan.rows.at(0)?.translation_limit -
+              user.subscription.translation_usage;
+            user.subscription.remaining_usage = remaining_usage;
+          }
+        }
         if (result.rows.length > 0) {
-          return done(null, result.rows[0]);
+          return done(null, user);
         } else {
           return done(null, false); // Or create a new user account
         }
@@ -97,6 +128,13 @@ passport.use(
           );
 
           const newUser: User = newUserResult.rows[0];
+          const subscription = await PAYMENT_QUERY.apply_subscription(
+            newUser.client_id,
+            plansConfig["FREE"].db_p_id,
+            "polygot",
+            "active",
+            new Date()
+          );
           console.log("New user created:", newUser);
           return done(null, newUser);
         }
