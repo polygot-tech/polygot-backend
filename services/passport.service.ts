@@ -7,6 +7,7 @@ import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { pool } from "../config/pool.config";
 import { PAYMENT_QUERY } from "../controllers/modules/payment";
 import { plansConfig } from "../controllers/payments.controller";
+import { getSubscriptionRemainingUsage } from "../middleware/modules/subscriptionUtils";
 
 export interface User {
   id: number;
@@ -52,7 +53,6 @@ passport.use(
     },
     async (jwtPayload, done) => {
       try {
-        console.log("jwt check", jwtPayload);
         const result = await pool.query("SELECT * FROM users WHERE id = $1", [
           jwtPayload.id,
         ]);
@@ -68,9 +68,7 @@ passport.use(
               "SELECT * FROM plans WHERE id = $1 ",
               [user.subscription.plan_id]
             );
-            const remaining_usage =
-              plan.rows.at(0)?.translation_limit -
-              user.subscription.translation_usage;
+            const remaining_usage = await getSubscriptionRemainingUsage(subscription.rows[0]);
             user.subscription.remaining_usage = remaining_usage;
           }
         }
