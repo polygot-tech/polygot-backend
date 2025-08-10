@@ -61,16 +61,21 @@ passport.use(
           "SELECT * FROM subscriptions WHERE client_id = $1 AND status = $2 ORDER BY current_period_end ",
           [user.client_id, "active"]
         );
-        if (subscription.rows.length > 0) {
+        if (subscription.rows.length == 1) {
           user.subscription = subscription.rows[0];
-          if (user.subscription) {
-            const plan = await pool.query(
-              "SELECT * FROM plans WHERE id = $1 ",
-              [user.subscription.plan_id]
-            );
-            const remaining_usage = await getSubscriptionRemainingUsage(subscription.rows[0]);
-            user.subscription.remaining_usage = remaining_usage;
-          }
+        } else if (subscription.rows.length > 1) {
+          user.subscription = subscription.rows.find(
+            (sub) => sub.plan_id != plansConfig.FREE.db_p_id
+          );
+        }
+        if (user.subscription) {
+          const plan = await pool.query("SELECT * FROM plans WHERE id = $1 ", [
+            user.subscription.plan_id,
+          ]);
+          const remaining_usage = await getSubscriptionRemainingUsage(
+            user.subscription
+          );
+          user.subscription.remaining_usage = remaining_usage;
         }
         if (result.rows.length > 0) {
           return done(null, user);
