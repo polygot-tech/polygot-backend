@@ -825,7 +825,7 @@ export const translate = async (req: Request, res: Response) => {
       context 
     });
 
-    return res.status(200).json({
+    return res.json({
       success: true,
       data: result.translated,
       metadata: {
@@ -841,7 +841,7 @@ export const translate = async (req: Request, res: Response) => {
     });
 
   } catch (error) {
-    console.error("Translation endpoint error:", error);
+    console.trace("Translation endpoint error:", error);
     
     if (error instanceof z.ZodError) {
       return res.status(400).json({

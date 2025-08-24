@@ -15,7 +15,7 @@ import originRoutes from "./routes/origin.routes";
 import "./services/passport.service";
 import { connectRedis } from "./config/redis.config";
 import { authenticateJWT } from "./middleware/auth.middleware";
-import paymentRoutes from './routes/payments.routes'
+import paymentRoutes from "./routes/payments.routes";
 
 dotenv.config();
 
@@ -29,6 +29,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGIN?.split(",").map((origin) =>
   "https://polygot-react.vercel.app",
   "https://polygot.tech",
   "http://localhost:5173",
+  "http://localhost:3001",
 ];
 
 app.use(express.json());
@@ -61,12 +62,11 @@ app.use("/api/v1/auth", authCors, authRoutes);
 app.use("/api/v1/user", authCors, authenticateJWT, userRoutes);
 app.use("/api/v1/apps", authCors, authenticateJWT, appsRoutes);
 app.use("/api/v1/origins", authCors, authenticateJWT, originRoutes);
-app.use("/api/v1/payments",authCors, paymentRoutes)
+app.use("/api/v1/payments", authCors, paymentRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Visit the website at https://www.polygot.tech");
 });
-
 
 console.log("JWT_SECRET is set:", !!process.env.JWT_SECRET);
 

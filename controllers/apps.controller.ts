@@ -4,6 +4,7 @@ import { pool } from "../config/pool.config";
 
 export const getAllApp = async (req: Request, res: Response) => {
   const { client_id } = req.user as { client_id: string };
+  console.log("userData", req.user);
   try {
     const result = await pool.query("SELECT * FROM apps where client_id = $1", [
       client_id,

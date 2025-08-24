@@ -1,6 +1,7 @@
 declare global {
   namespace Express {
     interface Request {
+      user?: User;
       monitor?: {
         id: string;
         client_id: string;
